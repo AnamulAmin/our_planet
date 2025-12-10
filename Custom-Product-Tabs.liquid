@@ -1,0 +1,791 @@
+{% style %}
+  .product-tabs-section {
+    padding: 40px 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .tabs-navigation {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid #e0e0e0;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+  }
+
+  .tab-button {
+    padding: 15px 30px;
+    background: {{ section.settings.tab_bg_color }};
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    color: {{ section.settings.tab_text_color }};
+    transition: all 0.3s ease;
+    border-bottom: 3px solid transparent;
+    font-weight: 500;
+  }
+
+  .tab-button:hover {
+    background: {{ section.settings.tab_hover_bg }};
+  }
+
+  .tab-button.active {
+    border-bottom-color: {{ section.settings.tab_active_color }};
+    color: {{ section.settings.tab_active_text_color }};
+  }
+
+  .tab-content {
+    display: none;
+    animation: fadeIn 0.3s ease;
+  }
+
+  .tab-content.active {
+    display: block;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .description-content ul {
+    list-style: disc;
+    padding-left: 20px;
+    line-height: 1.8;
+  }
+
+  .description-content li {
+    margin-bottom: 10px;
+    color: {{ section.settings.content_text_color }};
+  }
+
+  .description-content h2 {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .description-content p {
+    line-height: 1.6;
+    margin-bottom: 20px;
+    color: {{ section.settings.content_text_color }};
+  }
+
+  .technical-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  }
+
+  .technical-table th,
+  .technical-table td {
+    padding: 15px;
+    text-align: left;
+    border: 1px solid #e0e0e0;
+  }
+
+  .technical-table th {
+    background: {{ section.settings.table_header_bg }};
+    font-weight: 600;
+    color: {{ section.settings.table_header_text }};
+  }
+
+  .technical-table tbody tr:nth-child(even) {
+    background: {{ section.settings.table_row_alt_bg }};
+  }
+
+  .technical-note {
+    font-size: 14px;
+    color: #666;
+    margin-top: 10px;
+  }
+
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+  }
+
+  .gallery-item {
+    cursor: pointer;
+    overflow: hidden;
+    border-radius: 8px;
+    transition: transform 0.3s ease;
+  }
+
+  .gallery-item:hover {
+    transform: scale(1.05);
+  }
+
+  .gallery-item img {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    display: block;
+  }
+
+  .video-container {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .video-wrapper {
+    position: relative;
+    padding-bottom: 56.25%;
+    height: 0;
+    overflow: hidden;
+  }
+
+  .video-wrapper iframe,
+  .video-wrapper video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .downloads-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+  }
+
+  .download-item {
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+  }
+
+  .download-item img {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    display: block;
+  }
+
+  .download-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 15px;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+  }
+
+  .download-item:hover .download-overlay {
+    transform: translateY(0);
+  }
+
+  .download-button {
+    background: {{ section.settings.download_button_bg }};
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 4px;
+    margin-top: 10px;
+    font-size: 14px;
+  }
+
+  /* Modal Styles */
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    animation: fadeIn 0.3s ease;
+  }
+
+  .modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    visibility: visible;
+  }
+
+  .modal-content {
+    max-width: 90%;
+    max-height: 90vh;
+    position: relative;
+  }
+
+  .modal-image {
+    width: 100%;
+    height: auto;
+    max-height: 90vh;
+    object-fit: contain;
+  }
+
+  .modal-close {
+    position: absolute;
+    top: 20px;
+    right: 35px;
+    color: #f1f1f1;
+    font-size: 40px;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 10000;
+  }
+
+  .modal-close:hover {
+    color: #bbb;
+  }
+
+  .modal-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.3);
+    color: white;
+    font-size: 30px;
+    padding: 10px 15px;
+    cursor: pointer;
+    border-radius: 4px;
+    user-select: none;
+  }
+
+  .modal-nav:hover {
+    background: rgba(255, 255, 255, 0.5);
+  }
+
+  .modal-prev {
+    left: 20px;
+  }
+
+  .modal-next {
+    right: 20px;
+  }
+
+  @media (max-width: 768px) {
+    .tab-button {
+      padding: 12px 20px;
+      font-size: 14px;
+    }
+
+    .gallery-grid,
+    .downloads-grid {
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    }
+  }
+{% endstyle %}
+
+<div class="product-tabs-section">
+  <div class="tabs-navigation">
+    <button class="tab-button active" data-tab="description">{{ section.settings.tab1_title }}</button>
+    <button class="tab-button" data-tab="technical">{{ section.settings.tab2_title }}</button>
+    <button class="tab-button" data-tab="gallery">{{ section.settings.tab3_title }}</button>
+    <button class="tab-button" data-tab="videos">{{ section.settings.tab4_title }}</button>
+    <button class="tab-button" data-tab="models">{{ section.settings.tab5_title }}</button>
+    <button class="tab-button" data-tab="downloads">{{ section.settings.tab6_title }}</button>
+  </div>
+
+  <!-- Description Tab -->
+  <div class="tab-content active" id="description">
+    <div class="description-content">
+      <h2>{{ section.settings.description_title }}</h2>
+      <div>{{ section.settings.description_text }}</div>
+      
+      {% if section.blocks.size > 0 %}
+        <ul>
+          {% for block in section.blocks %}
+            {% if block.type == 'description_item' %}
+              <li>{{ block.settings.item_text }}</li>
+            {% endif %}
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Technical Data Tab -->
+  <div class="tab-content" id="technical">
+    <h2>{{ section.settings.technical_title }}</h2>
+    <table class="technical-table">
+      <thead>
+        <tr>
+          <th>{{ section.settings.tech_col1_header }}</th>
+          <th>{{ section.settings.tech_col2_header }}</th>
+          <th>{{ section.settings.tech_col3_header }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for block in section.blocks %}
+          {% if block.type == 'technical_row' %}
+            <tr>
+              <td>{{ block.settings.row_label }}</td>
+              <td>{{ block.settings.row_value1 }}</td>
+              <td>{{ block.settings.row_value2 }}</td>
+            </tr>
+          {% endif %}
+        {% endfor %}
+      </tbody>
+    </table>
+    {% if section.settings.technical_note %}
+      <p class="technical-note">{{ section.settings.technical_note }}</p>
+    {% endif %}
+  </div>
+
+  <!-- Gallery Tab -->
+  <div class="tab-content" id="gallery">
+    <h2>{{ section.settings.gallery_title }}</h2>
+    <div class="gallery-grid">
+      {% for block in section.blocks %}
+        {% if block.type == 'gallery_image' %}
+          <div class="gallery-item" data-image="{{ block.settings.image | img_url: 'master' }}">
+            {% if block.settings.image %}
+              {{ block.settings.image | img_url: '400x400', crop: 'center' | img_tag: block.settings.image.alt }}
+            {% endif %}
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Videos Tab -->
+  <div class="tab-content" id="videos">
+    <h2>{{ section.settings.videos_title }}</h2>
+    <div class="video-container">
+      {% for block in section.blocks %}
+        {% if block.type == 'video' %}
+          <div class="video-wrapper">
+            {% if block.settings.video_url contains 'youtube' or block.settings.video_url contains 'youtu.be' %}
+              {% assign video_id = block.settings.video_url | split: 'v=' | last | split: '/' | last | split: '&' | first %}
+              <iframe src="https://www.youtube.com/embed/{{ video_id }}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            {% elsif block.settings.video_url contains 'vimeo' %}
+              {% assign video_id = block.settings.video_url | split: '/' | last %}
+              <iframe src="https://player.vimeo.com/video/{{ video_id }}" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+            {% else %}
+              <video controls>
+                <source src="{{ block.settings.video_url }}" type="video/mp4">
+              </video>
+            {% endif %}
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Models Tab -->
+  <div class="tab-content" id="models">
+    <h2>{{ section.settings.models_title }}</h2>
+    <div>{{ section.settings.models_content }}</div>
+  </div>
+
+  <!-- Downloads Tab -->
+  <div class="tab-content" id="downloads">
+    <h2>{{ section.settings.downloads_title }}</h2>
+    <div class="downloads-grid">
+      {% for block in section.blocks %}
+        {% if block.type == 'download_item' %}
+          <div class="download-item">
+            {% if block.settings.download_image %}
+              {{ block.settings.download_image | img_url: '400x400', crop: 'center' | img_tag: block.settings.download_image.alt }}
+            {% endif %}
+            <div class="download-overlay">
+              <h3>{{ block.settings.download_title }}</h3>
+              {% if block.settings.download_file %}
+                <a href="{{ block.settings.download_file }}" download>
+                  <button class="download-button">Download</button>
+                </a>
+              {% endif %}
+            </div>
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<!-- Image Modal -->
+<div class="modal" id="imageModal">
+  <span class="modal-close">&times;</span>
+  <span class="modal-nav modal-prev">&#10094;</span>
+  <div class="modal-content">
+    <img class="modal-image" id="modalImage" src="" alt="Gallery Image">
+  </div>
+  <span class="modal-nav modal-next">&#10095;</span>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Tab functionality
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    tabButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        const tabName = this.getAttribute('data-tab');
+        
+        tabButtons.forEach(btn => btn.classList.remove('active'));
+        tabContents.forEach(content => content.classList.remove('active'));
+        
+        this.classList.add('active');
+        document.getElementById(tabName).classList.add('active');
+      });
+    });
+
+    // Gallery modal functionality
+    const modal = document.getElementById('imageModal');
+    const modalImg = document.getElementById('modalImage');
+    const closeBtn = document.querySelector('.modal-close');
+    const galleryItems = document.querySelectorAll('.gallery-item');
+    const prevBtn = document.querySelector('.modal-prev');
+    const nextBtn = document.querySelector('.modal-next');
+    
+    let currentImageIndex = 0;
+    let galleryImages = [];
+
+    // Collect all gallery images
+    galleryItems.forEach((item, index) => {
+      const imgSrc = item.getAttribute('data-image');
+      galleryImages.push(imgSrc);
+      
+      item.addEventListener('click', function() {
+        currentImageIndex = index;
+        openModal(imgSrc);
+      });
+    });
+
+    function openModal(src) {
+      modal.classList.add('active');
+      modalImg.src = src;
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+      modal.classList.remove('active');
+      document.body.style.overflow = 'auto';
+    }
+
+    closeBtn.addEventListener('click', closeModal);
+
+    modal.addEventListener('click', function(e) {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+
+    // Navigation
+    prevBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      currentImageIndex = (currentImageIndex - 1 + galleryImages.length) % galleryImages.length;
+      modalImg.src = galleryImages[currentImageIndex];
+    });
+
+    nextBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      currentImageIndex = (currentImageIndex + 1) % galleryImages.length;
+      modalImg.src = galleryImages[currentImageIndex];
+    });
+
+    // Keyboard navigation
+    document.addEventListener('keydown', function(e) {
+      if (modal.classList.contains('active')) {
+        if (e.key === 'Escape') closeModal();
+        if (e.key === 'ArrowLeft') prevBtn.click();
+        if (e.key === 'ArrowRight') nextBtn.click();
+      }
+    });
+  });
+</script>
+
+{% schema %}
+{
+  "name": "Product Tabs",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Tab Titles"
+    },
+    {
+      "type": "text",
+      "id": "tab1_title",
+      "label": "Tab 1 Title",
+      "default": "Description"
+    },
+    {
+      "type": "text",
+      "id": "tab2_title",
+      "label": "Tab 2 Title",
+      "default": "Technical Data"
+    },
+    {
+      "type": "text",
+      "id": "tab3_title",
+      "label": "Tab 3 Title",
+      "default": "Gallery"
+    },
+    {
+      "type": "text",
+      "id": "tab4_title",
+      "label": "Tab 4 Title",
+      "default": "Videos"
+    },
+    {
+      "type": "text",
+      "id": "tab5_title",
+      "label": "Tab 5 Title",
+      "default": "Models"
+    },
+    {
+      "type": "text",
+      "id": "tab6_title",
+      "label": "Tab 6 Title",
+      "default": "Downloads"
+    },
+    {
+      "type": "header",
+      "content": "Description Tab"
+    },
+    {
+      "type": "text",
+      "id": "description_title",
+      "label": "Description Title",
+      "default": "DESCRIPTION"
+    },
+    {
+      "type": "richtext",
+      "id": "description_text",
+      "label": "Description Text",
+      "default": "<p>The Prodig Pro Sweep is an attachment designed to increase efficiency and reduce costs when maintaining yards, roadways and other areas. Suitable for forklifts, tractor loaders, tele-handlers & articulated loaders.</p>"
+    },
+    {
+      "type": "header",
+      "content": "Technical Data Tab"
+    },
+    {
+      "type": "text",
+      "id": "technical_title",
+      "label": "Technical Title",
+      "default": "TECHNICAL DATA"
+    },
+    {
+      "type": "text",
+      "id": "tech_col1_header",
+      "label": "Column 1 Header",
+      "default": "ProSweep"
+    },
+    {
+      "type": "text",
+      "id": "tech_col2_header",
+      "label": "Column 2 Header",
+      "default": "PS 2000"
+    },
+    {
+      "type": "text",
+      "id": "tech_col3_header",
+      "label": "Column 3 Header",
+      "default": "PS 2500"
+    },
+    {
+      "type": "text",
+      "id": "technical_note",
+      "label": "Technical Note",
+      "default": "All measurements approx (±5mm, ±5kg). Weight excludes brackets as these vary"
+    },
+    {
+      "type": "header",
+      "content": "Gallery Tab"
+    },
+    {
+      "type": "text",
+      "id": "gallery_title",
+      "label": "Gallery Title",
+      "default": "GALLERY"
+    },
+    {
+      "type": "header",
+      "content": "Videos Tab"
+    },
+    {
+      "type": "text",
+      "id": "videos_title",
+      "label": "Videos Title",
+      "default": "VIDEOS"
+    },
+    {
+      "type": "header",
+      "content": "Models Tab"
+    },
+    {
+      "type": "text",
+      "id": "models_title",
+      "label": "Models Title",
+      "default": "MODELS"
+    },
+    {
+      "type": "richtext",
+      "id": "models_content",
+      "label": "Models Content"
+    },
+    {
+      "type": "header",
+      "content": "Downloads Tab"
+    },
+    {
+      "type": "text",
+      "id": "downloads_title",
+      "label": "Downloads Title",
+      "default": "DOWNLOADS"
+    },
+    {
+      "type": "header",
+      "content": "Color Settings"
+    },
+    {
+      "type": "color",
+      "id": "tab_bg_color",
+      "label": "Tab Background",
+      "default": "#f5f5f5"
+    },
+    {
+      "type": "color",
+      "id": "tab_text_color",
+      "label": "Tab Text Color",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "tab_hover_bg",
+      "label": "Tab Hover Background",
+      "default": "#e8e8e8"
+    },
+    {
+      "type": "color",
+      "id": "tab_active_color",
+      "label": "Active Tab Border Color",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "tab_active_text_color",
+      "label": "Active Tab Text Color",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "content_text_color",
+      "label": "Content Text Color",
+      "default": "#666666"
+    },
+    {
+      "type": "color",
+      "id": "table_header_bg",
+      "label": "Table Header Background",
+      "default": "#f5f5f5"
+    },
+    {
+      "type": "color",
+      "id": "table_header_text",
+      "label": "Table Header Text",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "table_row_alt_bg",
+      "label": "Table Alternate Row Background",
+      "default": "#fafafa"
+    },
+    {
+      "type": "color",
+      "id": "download_button_bg",
+      "label": "Download Button Background",
+      "default": "#007bff"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "description_item",
+      "name": "Description List Item",
+      "settings": [
+        {
+          "type": "text",
+          "id": "item_text",
+          "label": "Item Text"
+        }
+      ]
+    },
+    {
+      "type": "technical_row",
+      "name": "Technical Data Row",
+      "settings": [
+        {
+          "type": "text",
+          "id": "row_label",
+          "label": "Row Label"
+        },
+        {
+          "type": "text",
+          "id": "row_value1",
+          "label": "Value 1"
+        },
+        {
+          "type": "text",
+          "id": "row_value2",
+          "label": "Value 2"
+        }
+      ]
+    },
+    {
+      "type": "gallery_image",
+      "name": "Gallery Image",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        }
+      ]
+    },
+    {
+      "type": "video",
+      "name": "Video",
+      "settings": [
+        {
+          "type": "url",
+          "id": "video_url",
+          "label": "Video URL",
+          "info": "YouTube, Vimeo, or direct video URL"
+        }
+      ]
+    },
+    {
+      "type": "download_item",
+      "name": "Download Item",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "download_image",
+          "label": "Download Image"
+        },
+        {
+          "type": "text",
+          "id": "download_title",
+          "label": "Download Title"
+        },
+        {
+          "type": "url",
+          "id": "download_file",
+          "label": "Download File URL"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Custom Product Tabs",
+      "category": "Product"
+    }
+  ]
+}
+{% endschema %}
