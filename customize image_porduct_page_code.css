@@ -1,0 +1,101 @@
+ #image-zoom-controls{
+    display: none;
+  }
+
+  .hdt-product__media.uploaded:hover  #image-zoom-controls {
+    display: block ;
+  }
+
+  @media screen and (max-width: 768px){
+    .hdt-product__media.uploaded  #image-zoom-controls {
+      display: block;
+    }
+  
+  }
+
+/* iOS-specific optimizations */
+@media screen and (-webkit-min-device-pixel-ratio: 2) {
+  .badge_image, .overlay_image {
+    -webkit-transform: translate3d(-50% , -50% , 0) !important;
+    transform: translate3d(-50%, -50%, 0) !important;
+    -webkit-backface-visibility: hidden !important;
+    backface-visibility: hidden !important;
+    -webkit-perspective: 1000px !important;
+    perspective: 1000px !important;
+    will-change: transform, opacity !important;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+    object-fit: scale-down !important;
+  }
+ 
+  
+  .hdt-product__media-item {
+    -webkit-overflow-scrolling: touch;
+    position: relative;
+    z-index: 1;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+  }
+  
+  .hdt-product__media {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+  }
+}
+
+
+.hdt-product-form__submit , .tpo_option-set-wrapper.tpo_has-option-set{
+  width: 100%;
+}
+  #shopify-section-{{ section.id }} {
+    --pr-media-width: {{ section.settings.media_width }}%; --section-pt:{{ section.settings.padding_top }}px; --section-pb:{{ section.settings.padding_bottom }}px; --section-prate:{{ section.settings.padding_rate }};
+  }
+
+  .hdt-slider__container .hdt-product__media .overlay_image{
+    filter: grayscale(1) !important;
+    mix-blend-mode: multiply;
+  }
+  .tpo_option-label .tpo_option-label-container .form__label {
+      background: white;
+      display: block !important;
+  }
+  .tpo_option-label{
+    display: block;
+  }
+
+  .badge_image{
+    height: 170px;
+  }
+  .tpo_option-container-7fd03ac7-af85-4b63-b65c-a14481a8e45a-251b746c-eaef-4c76-bda3-8f0519f0c27c-file-upload .tpo_option-label{
+
+    display: block !important;
+  }
+  .tpo_file-upload{
+  height: 200px !important;
+}
+
+@media (min-width: 1150px) {
+    .hdt-desktop-media-position-left .hdt-product__info-space {
+        transform: translateY(-60px);
+    }
+}
+
+
+  @media (max-width: 1268px) {
+    .badge_image{
+    height: 140px !important;
+  }
+    
+  @media (max-width: 768px) {
+    .badge_image{
+    height: 160px !important;
+  }
+  @media (max-width: 568px) {
+    .badge_image{
+    height: 130px !important;
+  }
+  @media (max-width: 400px) {
+    .badge_image{
+    height: 100px !important;
+  }
+}
