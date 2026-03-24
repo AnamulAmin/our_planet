@@ -1,0 +1,1268 @@
+{% comment %}
+  Media Slider Section - Video & Image Slider with Full Customization
+  Supports both images and videos with autoplay, navigation, and extensive styling options
+{% endcomment %}
+
+{% comment %}
+Media Slider Section with Swiper.js - Video & Image Slider with Animations
+Supports both images and videos with Swiper.js integration and advanced animations
+{% endcomment %}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+{{ 'custom-heor-slider.css' | asset_url | stylesheet_tag }}
+
+<div class="media-slider-swiper-wrapper section-{{ section.id }}-padding" 
+     style="background-color: {{ section.settings.background_color }};">
+  
+  <div class="container container--{{ section.settings.container_width }}">
+    
+    {% if section.settings.heading != blank or section.settings.subheading != blank %}
+      <div class="media-slider-swiper__header" 
+           style="text-align: {{ section.settings.text_align }};"
+           data-aos="fade-up"
+           data-aos-duration="800">
+        {% if section.settings.heading != blank %}
+          <h2 class="media-slider-swiper__heading" 
+              style="color: {{ section.settings.heading_color }}; 
+                     font-size: {{ section.settings.heading_size }}px;
+                     margin-bottom: {{ section.settings.heading_spacing }}px;">
+            {{ section.settings.heading }}
+          </h2>
+        {% endif %}
+        
+        {% if section.settings.subheading != blank %}
+          <p class="media-slider-swiper__subheading" 
+             style="color: {{ section.settings.subheading_color }}; 
+                    font-size: {{ section.settings.subheading_size }}px;">
+            {{ section.settings.subheading }}
+          </p>
+        {% endif %}
+      </div>
+    {% endif %}
+
+    <div class="swiper media-slider-swiper-{{ section.id }}" 
+         data-aos="fade-up"
+         data-aos-duration="1000"
+         data-aos-delay="200">
+      
+      <div class="swiper-wrapper">
+        {% for block in section.blocks %}
+          <div class="swiper-slide" {{ block.shopify_attributes }}>
+            
+            <div class="media-slider-swiper__media-wrapper" 
+                 style="height: {{ section.settings.slider_height }}px; 
+                        border-radius: {{ section.settings.border_radius }}px;
+                        overflow: hidden;">
+              
+              {% if block.type == 'image' %}
+                {% if block.settings.image != blank %}
+                  <div class="media-slider-swiper__image-container"
+                       data-swiper-parallax="{{ section.settings.parallax_intensity }}"
+                       data-swiper-parallax-scale="1.2">
+                    <img 
+                      src="{{ block.settings.image | img_url: '2000x' }}"
+                      alt="{{ block.settings.image.alt | escape }}"
+                      class="media-slider-swiper__image"
+                      loading="lazy"
+                      style="object-fit: {{ section.settings.image_fit }};">
+                  </div>
+                {% else %}
+                  {{ 'image' | placeholder_svg_tag: 'media-slider-swiper__placeholder' }}
+                {% endif %}
+                
+              {% elsif block.type == 'video' %}
+                {% if block.settings.video_url != blank %}
+                  <div class="media-slider-swiper__video-container"
+                       data-swiper-parallax="{{ section.settings.parallax_intensity }}">
+                    {% if block.settings.video_url contains 'youtube.com' or block.settings.video_url contains 'youtu.be' %}
+                      {% assign video_id = block.settings.video_url | split: 'v=' | last | split: '&' | first %}
+                      {% if block.settings.video_url contains 'youtu.be' %}
+                        {% assign video_id = block.settings.video_url | split: 'youtu.be/' | last | split: '?' | first %}
+                      {% endif %}
+                      <iframe 
+                        src="https://www.youtube.com/embed/{{ video_id }}?controls={{ block.settings.show_controls | default: 1 }}&autoplay={{ block.settings.video_autoplay | default: 0 }}&mute={{ block.settings.video_muted | default: 1 }}&loop={{ block.settings.video_loop | default: 0 }}&playlist={{ video_id }}&enablejsapi=1"
+                        frameborder="0"
+                        allow="autoplay; encrypted-media"
+                        allowfullscreen
+                        class="media-slider-swiper__iframe">
+                      </iframe>
+                      
+                    {% elsif block.settings.video_url contains 'vimeo.com' %}
+                      {% assign video_id = block.settings.video_url | split: 'vimeo.com/' | last | split: '?' | first %}
+                      <iframe 
+                        src="https://player.vimeo.com/video/{{ video_id }}?autoplay={{ block.settings.video_autoplay | default: 0 }}&muted={{ block.settings.video_muted | default: 1 }}&loop={{ block.settings.video_loop | default: 0 }}&background=1"
+                        frameborder="0"
+                        allow="autoplay; fullscreen"
+                        allowfullscreen
+                        class="media-slider-swiper__iframe">
+                      </iframe>
+                    {% endif %}
+                  </div>
+                  
+                {% elsif block.settings.video_shopify != blank %}
+                  <div class="media-slider-swiper__video-wrapper"
+                       data-swiper-parallax="{{ section.settings.parallax_intensity }}">
+                    <video 
+                      class="media-slider-swiper__video"
+                      {% if block.settings.video_autoplay %}autoplay{% endif %}
+                      {% if block.settings.video_loop %}loop{% endif %}
+                      {% if block.settings.video_muted %}muted{% endif %}
+                      {% if block.settings.show_controls %}controls{% endif %}
+                      playsinline
+                      style="object-fit: {{ section.settings.image_fit }};">
+                      <source src="{{ block.settings.video_shopify.sources[1].url }}" type="{{ block.settings.video_shopify.sources[1].mime_type }}">
+                      Your browser does not support the video tag.
+                    </video>
+                  </div>
+                {% else %}
+                  {{ 'lifestyle-1' | placeholder_svg_tag: 'media-slider-swiper__placeholder' }}
+                {% endif %}
+              {% endif %}
+
+              {% if block.settings.overlay_enable %}
+                <div class="media-slider-swiper__overlay" 
+                     style="background: {{ block.settings.overlay_color }}; 
+                            opacity: {{ block.settings.overlay_opacity | divided_by: 100.0 }};">
+                </div>
+              {% endif %}
+
+              {% if block.settings.show_content %}
+                <div class="media-slider-swiper__content animate-content" 
+                     style="text-align: {{ block.settings.content_align }}; 
+                            {% if block.settings.content_position == 'top-left' %}top: 40px; left: 40px;{% endif %}
+                            {% if block.settings.content_position == 'top-center' %}top: 40px; left: 50%; transform: translateX(-50%);{% endif %}
+                            {% if block.settings.content_position == 'top-right' %}top: 40px; right: 40px;{% endif %}
+                            {% if block.settings.content_position == 'center-left' %}top: 50%; left: 40px; transform: translateY(-50%);{% endif %}
+                            {% if block.settings.content_position == 'center-center' %}top: 50%; left: 50%; transform: translate(-50%, -50%);{% endif %}
+                            {% if block.settings.content_position == 'center-right' %}top: 50%; right: 40px; transform: translateY(-50%);{% endif %}
+                            {% if block.settings.content_position == 'bottom-left' %}bottom: 40px; left: 40px;{% endif %}
+                            {% if block.settings.content_position == 'bottom-center' %}bottom: 40px; left: 50%; transform: translateX(-50%);{% endif %}
+                            {% if block.settings.content_position == 'bottom-right' %}bottom: 40px; right: 40px;{% endif %}">
+                  
+                  {% if block.settings.slide_heading != blank %}
+                    <h3 class="media-slider-swiper__slide-heading" 
+                        data-swiper-parallax="-300"
+                        data-swiper-parallax-opacity="0"
+                        style="color: {{ block.settings.heading_color }}; 
+                               font-size: {{ block.settings.slide_heading_size }}px;">
+                      {{ block.settings.slide_heading }}
+                    </h3>
+                  {% endif %}
+                  
+                  {% if block.settings.slide_text != blank %}
+                    <p class="media-slider-swiper__slide-text" 
+                       data-swiper-parallax="-200"
+                       data-swiper-parallax-opacity="0"
+                       data-swiper-parallax-duration="600"
+                       style="color: {{ block.settings.text_color }}; 
+                              font-size: {{ block.settings.slide_text_size }}px;">
+                      {{ block.settings.slide_text }}
+                    </p>
+                  {% endif %}
+                  
+                  {% if block.settings.button_label != blank %}
+                    <a href="{{ block.settings.button_link | default: '#' }}" 
+                       class="media-slider-swiper__button"
+                       data-swiper-parallax="-100"
+                       data-swiper-parallax-opacity="0"
+                       data-swiper-parallax-duration="800"
+                       style="background-color: {{ block.settings.button_bg_color }}; 
+                              color: {{ block.settings.button_text_color }}; 
+                              border-radius: {{ block.settings.button_radius }}px;
+                              padding: {{ block.settings.button_padding_y }}px {{ block.settings.button_padding_x }}px;">
+                      {{ block.settings.button_label }}
+                    </a>
+                  {% endif %}
+                </div>
+              {% endif %}
+
+              {% if block.settings.show_animation_shapes %}
+                <div class="animation-shapes">
+                  <div class="shape shape-1" style="background: {{ block.settings.shape_color_1 }};"></div>
+                  <div class="shape shape-2" style="background: {{ block.settings.shape_color_2 }};"></div>
+                  <div class="shape shape-3" style="background: {{ block.settings.shape_color_3 }};"></div>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+
+      {% if section.settings.show_arrows and section.blocks.size > 1 %}
+        <div class="swiper-button-prev media-slider-swiper__arrow media-slider-swiper__arrow--prev"
+             style="color: {{ section.settings.arrow_color }};">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+        </div>
+        
+        <div class="swiper-button-next media-slider-swiper__arrow media-slider-swiper__arrow--next"
+             style="color: {{ section.settings.arrow_color }};">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </div>
+      {% endif %}
+
+      {% if section.settings.show_pagination and section.blocks.size > 1 %}
+        <div class="swiper-pagination media-slider-swiper__pagination"></div>
+      {% endif %}
+
+      {% if section.settings.show_scrollbar %}
+        <div class="swiper-scrollbar media-slider-swiper__scrollbar"></div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css" />
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+<script>
+  (function() {
+    // Initialize AOS (Animate On Scroll)
+    AOS.init({
+      duration: 800,
+      once: true,
+      offset: 100
+    });
+
+    const swiperConfig = {
+      // Basic settings
+      loop: {{ section.settings.enable_loop | json }},
+      speed: {{ section.settings.transition_speed }},
+      autoHeight: false,
+      grabCursor: true,
+      watchSlidesProgress: true,
+      
+      // Autoplay
+      {% if section.settings.autoplay %}
+      autoplay: {
+        delay: {{ section.settings.autoplay_speed }},
+        disableOnInteraction: false,
+        pauseOnMouseEnter: true,
+      },
+      {% endif %}
+
+      // Effect
+      effect: '{{ section.settings.effect }}',
+      
+      {% if section.settings.effect == 'fade' %}
+      fadeEffect: {
+        crossFade: true
+      },
+      {% endif %}
+
+      {% if section.settings.effect == 'cube' %}
+      cubeEffect: {
+        shadow: true,
+        slideShadows: true,
+        shadowOffset: 20,
+        shadowScale: 0.94,
+      },
+      {% endif %}
+
+      {% if section.settings.effect == 'flip' %}
+      flipEffect: {
+        slideShadows: true,
+        limitRotation: true,
+      },
+      {% endif %}
+
+      {% if section.settings.effect == 'coverflow' %}
+      coverflowEffect: {
+        rotate: 50,
+        stretch: 0,
+        depth: 100,
+        modifier: 1,
+        slideShadows: true,
+      },
+      {% endif %}
+
+      {% if section.settings.effect == 'cards' %}
+      cardsEffect: {
+        slideShadows: true,
+        perSlideOffset: 8,
+        perSlideRotate: 2,
+      },
+      {% endif %}
+
+      {% if section.settings.effect == 'creative' %}
+      creativeEffect: {
+        prev: {
+          shadow: true,
+          translate: ['-20%', 0, -1],
+        },
+        next: {
+          translate: ['100%', 0, 0],
+        },
+      },
+      {% endif %}
+
+      // Parallax
+      {% if section.settings.enable_parallax %}
+      parallax: true,
+      {% endif %}
+
+      // Navigation
+      {% if section.settings.show_arrows %}
+      navigation: {
+        nextEl: '.media-slider-swiper-{{ section.id }} .swiper-button-next',
+        prevEl: '.media-slider-swiper-{{ section.id }} .swiper-button-prev',
+      },
+      {% endif %}
+
+      // Pagination
+      {% if section.settings.show_pagination %}
+      pagination: {
+        el: '.media-slider-swiper-{{ section.id }} .swiper-pagination',
+        type: '{{ section.settings.pagination_type }}',
+        clickable: true,
+        dynamicBullets: {{ section.settings.pagination_dynamic | json }},
+      },
+      {% endif %}
+
+      // Scrollbar
+      {% if section.settings.show_scrollbar %}
+      scrollbar: {
+        el: '.media-slider-swiper-{{ section.id }} .swiper-scrollbar',
+        draggable: true,
+      },
+      {% endif %}
+
+      // Keyboard control
+      keyboard: {
+        enabled: true,
+        onlyInViewport: true,
+      },
+
+      // Mouse wheel
+      {% if section.settings.mousewheel_control %}
+      mousewheel: {
+        forceToAxis: true,
+      },
+      {% endif %}
+
+      // Breakpoints
+      breakpoints: {
+        320: {
+          slidesPerView: 1,
+        },
+        768: {
+          slidesPerView: 1,
+        },
+        1024: {
+          slidesPerView: 1,
+        },
+      },
+
+      // Events
+      on: {
+        init: function() {
+          // Add animation classes
+          this.slides.forEach(slide => {
+            const content = slide.querySelector('.animate-content');
+            if (content && slide.classList.contains('swiper-slide-active')) {
+              content.classList.add('animated');
+            }
+          });
+        },
+        slideChangeTransitionStart: function() {
+          // Remove animation from all slides
+          this.slides.forEach(slide => {
+            const content = slide.querySelector('.animate-content');
+            if (content) {
+              content.classList.remove('animated');
+            }
+          });
+          
+          // Pause all videos
+          this.slides.forEach(slide => {
+            const video = slide.querySelector('video');
+            if (video && !video.paused) {
+              video.pause();
+            }
+          });
+        },
+        slideChangeTransitionEnd: function() {
+          // Add animation to active slide
+          const activeSlide = this.slides[this.activeIndex];
+          const content = activeSlide.querySelector('.animate-content');
+          if (content) {
+            setTimeout(() => {
+              content.classList.add('animated');
+            }, 100);
+          }
+          
+          // Play video in active slide
+          const video = activeSlide.querySelector('video[autoplay]');
+          if (video) {
+            video.play().catch(e => console.log('Video play failed:', e));
+          }
+        },
+        reachEnd: function() {
+          {% if section.settings.enable_loop == false %}
+          // Stop autoplay at end if loop is disabled
+          if (this.autoplay) {
+            this.autoplay.stop();
+          }
+          {% endif %}
+        }
+      }
+    };
+
+    // Initialize Swiper
+    const swiper = new Swiper('.media-slider-swiper-{{ section.id }}', swiperConfig);
+
+    // Add custom animations with GSAP-like effect
+    swiper.on('slideChange', function() {
+      const activeSlide = this.slides[this.activeIndex];
+      const shapes = activeSlide.querySelectorAll('.shape');
+      
+      shapes.forEach((shape, index) => {
+        shape.style.animation = 'none';
+        setTimeout(() => {
+          shape.style.animation = '';
+        }, 10);
+      });
+    });
+
+    // Lazy load optimization
+    swiper.on('slideChangeTransitionEnd', function() {
+      const nextSlide = this.slides[this.activeIndex + 1];
+      if (nextSlide) {
+        const img = nextSlide.querySelector('img[loading="lazy"]');
+        if (img && img.loading === 'lazy') {
+          img.loading = 'eager';
+        }
+      }
+    });
+  })();
+</script>
+
+<style>
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top }}px;
+    padding-bottom: {{ section.settings.padding_bottom }}px;
+  }
+
+  @media screen and (max-width: 768px) {
+    .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top_mobile }}px;
+      padding-bottom: {{ section.settings.padding_bottom_mobile }}px;
+    }
+    
+    .section-{{ section.id }}-padding .media-slider-swiper__media-wrapper {
+      height: {{ section.settings.slider_height_mobile }}px !important;
+    }
+    
+    .section-{{ section.id }}-padding .media-slider-swiper__heading {
+      font-size: {{ section.settings.heading_size | times: 0.7 }}px !important;
+    }
+  }
+
+  .media-slider-swiper-{{ section.id }} .swiper-pagination-bullet {
+    background: {{ section.settings.pagination_color }};
+    opacity: 0.5;
+  }
+
+  .media-slider-swiper-{{ section.id }} .swiper-pagination-bullet-active {
+    background: {{ section.settings.pagination_color }};
+    opacity: 1;
+  }
+
+  .media-slider-swiper-{{ section.id }} .media-slider-swiper__arrow {
+    background-color: {{ section.settings.arrow_bg_color }};
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Media Slider (Swiper)",
+  "tag": "section",
+  "class": "section-media-slider-swiper",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section Header"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Featured Media Gallery"
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "min": 16,
+      "max": 72,
+      "step": 2,
+      "unit": "px",
+      "label": "Heading size",
+      "default": 42
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Heading color",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "heading_spacing",
+      "min": 0,
+      "max": 50,
+      "step": 2,
+      "unit": "px",
+      "label": "Heading bottom spacing",
+      "default": 20
+    },
+    {
+      "type": "textarea",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "Discover our amazing collection"
+    },
+    {
+      "type": "range",
+      "id": "subheading_size",
+      "min": 12,
+      "max": 32,
+      "step": 1,
+      "unit": "px",
+      "label": "Subheading size",
+      "default": 18
+    },
+    {
+      "type": "color",
+      "id": "subheading_color",
+      "label": "Subheading color",
+      "default": "#666666"
+    },
+    {
+      "type": "select",
+      "id": "text_align",
+      "label": "Text alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "header",
+      "content": "Slider Settings"
+    },
+    {
+      "type": "range",
+      "id": "slider_height",
+      "min": 200,
+      "max": 1000,
+      "step": 50,
+      "unit": "px",
+      "label": "Slider height (desktop)",
+      "default": 700
+    },
+    {
+      "type": "range",
+      "id": "slider_height_mobile",
+      "min": 200,
+      "max": 800,
+      "step": 50,
+      "unit": "px",
+      "label": "Slider height (mobile)",
+      "default": 500
+    },
+    {
+      "type": "select",
+      "id": "image_fit",
+      "label": "Image/Video fit",
+      "options": [
+        { "value": "cover", "label": "Cover" },
+        { "value": "contain", "label": "Contain" },
+        { "value": "fill", "label": "Fill" }
+      ],
+      "default": "cover"
+    },
+    {
+      "type": "range",
+      "id": "border_radius",
+      "min": 0,
+      "max": 50,
+      "step": 2,
+      "unit": "px",
+      "label": "Border radius",
+      "default": 12
+    },
+    {
+      "type": "select",
+      "id": "effect",
+      "label": "Transition Effect",
+      "options": [
+        { "value": "slide", "label": "Slide" },
+        { "value": "fade", "label": "Fade" },
+        { "value": "cube", "label": "Cube" },
+        { "value": "coverflow", "label": "Coverflow" },
+        { "value": "flip", "label": "Flip" },
+        { "value": "cards", "label": "Cards" },
+        { "value": "creative", "label": "Creative" }
+      ],
+      "default": "slide",
+      "info": "Choose transition animation effect"
+    },
+    {
+      "type": "range",
+      "id": "transition_speed",
+      "min": 300,
+      "max": 2000,
+      "step": 100,
+      "unit": "ms",
+      "label": "Transition speed",
+      "default": 800
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_loop",
+      "label": "Enable loop",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_parallax",
+      "label": "Enable parallax effect",
+      "default": true,
+      "info": "Smooth parallax scrolling animation"
+    },
+    {
+      "type": "range",
+      "id": "parallax_intensity",
+      "min": -500,
+      "max": 0,
+      "step": 50,
+      "label": "Parallax intensity",
+      "default": -200,
+      "info": "Negative values create parallax effect"
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "Enable autoplay",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "autoplay_speed",
+      "min": 1000,
+      "max": 9000,
+      "step": 500,
+      "unit": "ms",
+      "label": "Autoplay speed",
+      "default": 3000
+    },
+    {
+      "type": "checkbox",
+      "id": "mousewheel_control",
+      "label": "Enable mousewheel control",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Navigation Arrows"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_arrows",
+      "label": "Show arrows",
+      "default": true
+    },
+    {
+      "type": "color",
+      "id": "arrow_bg_color",
+      "label": "Arrow background color",
+      "default": "rgba(255, 255, 255, 0.9)"
+    },
+    {
+      "type": "color",
+      "id": "arrow_color",
+      "label": "Arrow icon color",
+      "default": "#000000"
+    },
+    {
+      "type": "header",
+      "content": "Pagination"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_pagination",
+      "label": "Show pagination",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "pagination_type",
+      "label": "Pagination type",
+      "options": [
+        { "value": "bullets", "label": "Bullets" },
+        { "value": "fraction", "label": "Fraction (1/5)" },
+        { "value": "progressbar", "label": "Progress Bar" }
+      ],
+      "default": "bullets"
+    },
+    {
+      "type": "checkbox",
+      "id": "pagination_dynamic",
+      "label": "Dynamic bullets",
+      "default": true,
+      "info": "Only for bullets type"
+    },
+    {
+      "type": "color",
+      "id": "pagination_color",
+      "label": "Pagination color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Scrollbar"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_scrollbar",
+      "label": "Show scrollbar",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "container_width",
+      "label": "Container width",
+      "options": [
+        { "value": "full", "label": "Full width" },
+        { "value": "large", "label": "Large" },
+        { "value": "medium", "label": "Medium" },
+        { "value": "small", "label": "Small" }
+      ],
+      "default": "large"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding top",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding bottom",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding top (mobile)",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Padding bottom (mobile)",
+      "default": 40
+    }
+  ],
+  "blocks": [
+    {
+      "type": "image",
+      "name": "Image Slide",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "header",
+          "content": "Overlay"
+        },
+        {
+          "type": "checkbox",
+          "id": "overlay_enable",
+          "label": "Enable overlay",
+          "default": true
+        },
+        {
+          "type": "color",
+          "id": "overlay_color",
+          "label": "Overlay color",
+          "default": "rgba(0, 0, 0, 0.4)"
+        },
+        {
+          "type": "range",
+          "id": "overlay_opacity",
+          "min": 0,
+          "max": 100,
+          "step": 5,
+          "unit": "%",
+          "label": "Overlay opacity",
+          "default": 40
+        },
+        {
+          "type": "header",
+          "content": "Content"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_content",
+          "label": "Show content",
+          "default": true
+        },
+        {
+          "type": "text",
+          "id": "slide_heading",
+          "label": "Heading",
+          "default": "Beautiful Design"
+        },
+        {
+          "type": "range",
+          "id": "slide_heading_size",
+          "min": 16,
+          "max": 72,
+          "step": 2,
+          "unit": "px",
+          "label": "Heading size",
+          "default": 48
+        },
+        {
+          "type": "color",
+          "id": "heading_color",
+          "label": "Heading color",
+          "default": "#ffffff"
+        },
+        {
+          "type": "textarea",
+          "id": "slide_text",
+          "label": "Text",
+          "default": "Experience the perfect blend of style and functionality"
+        },
+        {
+          "type": "range",
+          "id": "slide_text_size",
+          "min": 12,
+          "max": 32,
+          "step": 1,
+          "unit": "px",
+          "label": "Text size",
+          "default": 18
+        },
+        {
+          "type": "color",
+          "id": "text_color",
+          "label": "Text color",
+          "default": "#ffffff"
+        },
+        {
+          "type": "select",
+          "id": "content_position",
+          "label": "Content position",
+          "options": [
+            { "value": "top-left", "label": "Top Left" },
+            { "value": "top-center", "label": "Top Center" },
+            { "value": "top-right", "label": "Top Right" },
+            { "value": "center-left", "label": "Center Left" },
+            { "value": "center-center", "label": "Center" },
+            { "value": "center-right", "label": "Center Right" },
+            { "value": "bottom-left", "label": "Bottom Left" },
+            { "value": "bottom-center", "label": "Bottom Center" },
+            { "value": "bottom-right", "label": "Bottom Right" }
+          ],
+          "default": "center-center"
+        },
+        {
+          "type": "select",
+          "id": "content_align",
+          "label": "Content alignment",
+          "options": [
+            { "value": "left", "label": "Left" },
+            { "value": "center", "label": "Center" },
+            { "value": "right", "label": "Right" }
+          ],
+          "default": "center"
+        },
+        {
+          "type": "header",
+          "content": "Button"
+        },
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "Button label",
+          "default": "Explore Now"
+        },
+        {
+          "type": "url",
+          "id": "button_link",
+          "label": "Button link"
+        },
+        {
+          "type": "color",
+          "id": "button_bg_color",
+          "label": "Button background",
+          "default": "#ffffff"
+        },
+        {
+          "type": "color",
+          "id": "button_text_color",
+          "label": "Button text color",
+          "default": "#000000"
+        },
+        {
+          "type": "range",
+          "id": "button_radius",
+          "min": 0,
+          "max": 50,
+          "step": 2,
+          "unit": "px",
+          "label": "Button border radius",
+          "default": 30
+        },
+        {
+          "type": "range",
+          "id": "button_padding_x",
+          "min": 10,
+          "max": 60,
+          "step": 2,
+          "unit": "px",
+          "label": "Button horizontal padding",
+          "default": 40
+        },
+        {
+          "type": "range",
+          "id": "button_padding_y",
+          "min": 5,
+          "max": 30,
+          "step": 1,
+          "unit": "px",
+          "label": "Button vertical padding",
+          "default": 14
+        },
+        {
+          "type": "header",
+          "content": "Animation Shapes"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_animation_shapes",
+          "label": "Show animated shapes",
+          "default": true,
+          "info": "Floating animated shapes in background"
+        },
+        {
+          "type": "color",
+          "id": "shape_color_1",
+          "label": "Shape color 1",
+          "default": "rgba(255, 255, 255, 0.1)"
+        },
+        {
+          "type": "color",
+          "id": "shape_color_2",
+          "label": "Shape color 2",
+          "default": "rgba(255, 255, 255, 0.08)"
+        },
+        {
+          "type": "color",
+          "id": "shape_color_3",
+          "label": "Shape color 3",
+          "default": "rgba(255, 255, 255, 0.06)"
+        }
+      ]
+    },
+    {
+      "type": "video",
+      "name": "Video Slide",
+      "settings": [
+        {
+          "type": "header",
+          "content": "Video Source"
+        },
+        {
+          "type": "paragraph",
+          "content": "Use either a video URL (YouTube/Vimeo) OR upload a Shopify video file"
+        },
+        {
+          "type": "url",
+          "id": "video_url",
+          "label": "Video URL (YouTube or Vimeo)",
+          "info": "Paste a YouTube or Vimeo video URL"
+        },
+        {
+          "type": "video",
+          "id": "video_shopify",
+          "label": "OR Shopify Video File"
+        },
+        {
+          "type": "checkbox",
+          "id": "video_autoplay",
+          "label": "Autoplay",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "video_loop",
+          "label": "Loop",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "video_muted",
+          "label": "Muted",
+          "default": true,
+          "info": "Must be muted for autoplay to work"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_controls",
+          "label": "Show controls",
+          "default": false
+        },
+        {
+          "type": "header",
+          "content": "Overlay"
+        },
+        {
+          "type": "checkbox",
+          "id": "overlay_enable",
+          "label": "Enable overlay",
+          "default": true
+        },
+        {
+          "type": "color",
+          "id": "overlay_color",
+          "label": "Overlay color",
+          "default": "rgba(0, 0, 0, 0.3)"
+        },
+        {
+          "type": "range",
+          "id": "overlay_opacity",
+          "min": 0,
+          "max": 100,
+          "step": 5,
+          "unit": "%",
+          "label": "Overlay opacity",
+          "default": 30
+        },
+        {
+          "type": "header",
+          "content": "Content"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_content",
+          "label": "Show content",
+          "default": true
+        },
+        {
+          "type": "text",
+          "id": "slide_heading",
+          "label": "Heading",
+          "default": "Watch Our Story"
+        },
+        {
+          "type": "range",
+          "id": "slide_heading_size",
+          "min": 16,
+          "max": 72,
+          "step": 2,
+          "unit": "px",
+          "label": "Heading size",
+          "default": 48
+        },
+        {
+          "type": "color",
+          "id": "heading_color",
+          "label": "Heading color",
+          "default": "#ffffff"
+        },
+        {
+          "type": "textarea",
+          "id": "slide_text",
+          "label": "Text",
+          "default": "Discover how we create amazing experiences"
+        },
+        {
+          "type": "range",
+          "id": "slide_text_size",
+          "min": 12,
+          "max": 32,
+          "step": 1,
+          "unit": "px",
+          "label": "Text size",
+          "default": 18
+        },
+        {
+          "type": "color",
+          "id": "text_color",
+          "label": "Text color",
+          "default": "#ffffff"
+        },
+        {
+          "type": "select",
+          "id": "content_position",
+          "label": "Content position",
+          "options": [
+            { "value": "top-left", "label": "Top Left" },
+            { "value": "top-center", "label": "Top Center" },
+            { "value": "top-right", "label": "Top Right" },
+            { "value": "center-left", "label": "Center Left" },
+            { "value": "center-center", "label": "Center" },
+            { "value": "center-right", "label": "Center Right" },
+            { "value": "bottom-left", "label": "Bottom Left" },
+            { "value": "bottom-center", "label": "Bottom Center" },
+            { "value": "bottom-right", "label": "Bottom Right" }
+          ],
+          "default": "center-center"
+        },
+        {
+          "type": "select",
+          "id": "content_align",
+          "label": "Content alignment",
+          "options": [
+            { "value": "left", "label": "Left" },
+            { "value": "center", "label": "Center" },
+            { "value": "right", "label": "Right" }
+          ],
+          "default": "center"
+        },
+        {
+          "type": "header",
+          "content": "Button"
+        },
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "Button label",
+          "default": "Learn More"
+        },
+        {
+          "type": "url",
+          "id": "button_link",
+          "label": "Button link"
+        },
+        {
+          "type": "color",
+          "id": "button_bg_color",
+          "label": "Button background",
+          "default": "#ffffff"
+        },
+        {
+          "type": "color",
+          "id": "button_text_color",
+          "label": "Button text color",
+          "default": "#000000"
+        },
+        {
+          "type": "range",
+          "id": "button_radius",
+          "min": 0,
+          "max": 50,
+          "step": 2,
+          "unit": "px",
+          "label": "Button border radius",
+          "default": 30
+        },
+        {
+          "type": "range",
+          "id": "button_padding_x",
+          "min": 10,
+          "max": 60,
+          "step": 2,
+          "unit": "px",
+          "label": "Button horizontal padding",
+          "default": 40
+        },
+        {
+          "type": "range",
+          "id": "button_padding_y",
+          "min": 5,
+          "max": 30,
+          "step": 1,
+          "unit": "px",
+          "label": "Button vertical padding",
+          "default": 14
+        },
+        {
+          "type": "header",
+          "content": "Animation Shapes"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_animation_shapes",
+          "label": "Show animated shapes",
+          "default": true,
+          "info": "Floating animated shapes in background"
+        },
+        {
+          "type": "color",
+          "id": "shape_color_1",
+          "label": "Shape color 1",
+          "default": "rgba(255, 255, 255, 0.1)"
+        },
+        {
+          "type": "color",
+          "id": "shape_color_2",
+          "label": "Shape color 2",
+          "default": "rgba(255, 255, 255, 0.08)"
+        },
+        {
+          "type": "color",
+          "id": "shape_color_3",
+          "label": "Shape color 3",
+          "default": "rgba(255, 255, 255, 0.06)"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Custom Media Slider (Swiper)",
+      "blocks": [
+        {
+          "type": "image"
+        },
+        {
+          "type": "image"
+        },
+        {
+          "type": "video"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
